@@ -1,11 +1,13 @@
-import ChatBox from './ChatBox';
+'use client';
+
+import SideChatbox from './SideChatbox';
 import WorldMap from './WorldMap';
 
 export default function Page() {
     return (
         <div>
             <WorldMap />
-            <ChatBox />
+            <SideChatbox />
         </div>
     );
 } 

@@ -1,0 +1,7 @@
+---
+description: TS coding style
+globs: *.jsx, *.tsx, *.ts, *.js
+---
+# Typescript Style Guide
+
+- Use `type` keyword first.

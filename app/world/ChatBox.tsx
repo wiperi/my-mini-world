@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { IoMdChatbubbles } from 'react-icons/io';
 import { motion, AnimatePresence } from 'framer-motion';
