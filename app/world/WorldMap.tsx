@@ -1,12 +1,129 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { useAppStore } from "../store/appStore";
+import { conversationHistory } from "../util/chatBot";
+
+// 首先定义类型
+type AvatarPosition = {
+  type: 'center' | 'city' | 'coordinate';
+  coordinates?: [number, number]; // 经纬度坐标
+  cityName?: string;
+}
+
+type AvatarInfo = {
+  id: string;
+  countryName: string;
+  avatar: string;
+  position: AvatarPosition;
+  presetInfo?: string;
+  navigationInfo?: string;
+}
 
 const WorldMap = () => {
 
-  const { isExpanded, setIsExpanded } = useAppStore();
+  const { 
+    isExpanded, 
+    messages, 
+    inputMessage,
+    setIsExpanded,
+    addMessage,
+    updateLastMessage,
+    setMessageComplete,
+    setInputMessage,
+    sendMessage
+  } = useAppStore();
 
   const mapRef = useRef<HTMLDivElement>(null);
+
+  // 替换原来的 highlightedCountries 为新的 avatarInfos
+  const avatarInfos: AvatarInfo[] = [
+    {
+      id: 'china-1',
+      countryName: 'China',
+      avatar: '/avatars/china-user1.png',
+      position: { type: 'center' },
+      presetInfo: 'Tell me about Chinese culture',
+      navigationInfo: 'Exploring Chinese traditions'
+    },
+    {
+      id: 'china-2',
+      countryName: 'China',
+      avatar: '/avatars/china-user2.png',
+      position: { 
+        type: 'city',
+        cityName: 'Beijing'
+      },
+      presetInfo: 'Tell me about Beijing',
+      navigationInfo: 'Exploring Beijing landmarks'
+    },
+    {
+      id: 'china-3',
+      countryName: 'China',
+      avatar: '/avatars/china-user3.png',
+      position: { 
+        type: 'center',
+      },
+      presetInfo: 'Tell me about Beijing',
+      navigationInfo: 'Exploring Beijing landmarks'
+    },
+    {
+      id: 'china-4',
+      countryName: 'China',
+      avatar: '/avatars/china-user4.png',
+      position: { 
+        type: 'coordinate',
+        coordinates: [113.2806, 23.1251]
+      },
+      presetInfo: 'Tell me about Guangzhou',
+      navigationInfo: 'Exploring Guangzhou landmarks'
+    },
+    {
+      id: 'usa-1',
+      countryName: 'USA',
+      avatar: '/avatars/usa-user1.png',
+      position: { type: 'center' },
+      presetInfo: 'Tell me about American culture'
+    },
+    {
+      id: 'usa-2',
+      countryName: 'USA',
+      avatar: '/avatars/usa-user2.png',
+      position: { 
+        type: 'coordinate',
+        coordinates: [-122.4194, 37.7749] // San Francisco coordinates
+      },
+      presetInfo: 'Tell me about San Francisco'
+    }
+    // ... 可以添加更多头像信息
+  ];
+
+  // 添加获取头像位置的辅助函数
+  const getAvatarPosition = (position: AvatarPosition, feature: any, path: any, projection: any): [number, number] => {
+    switch (position.type) {
+      case 'center':
+        return path.centroid(feature);
+      case 'city':
+        // 这里需要一个城市坐标数据库，这里简化处理
+        // 实际应用中你需要一个城市坐标的查找表
+        const cityCoordinates = getCityCoordinates(position.cityName!);
+        return projection(cityCoordinates);
+      case 'coordinate':
+        return projection(position.coordinates!);
+      default:
+        return path.centroid(feature);
+    }
+  };
+
+  // 城市坐标查找函数（示例）
+  const getCityCoordinates = (cityName: string): [number, number] => {
+    const cityCoords: Record<string, [number, number]> = {
+      'Beijing': [116.4074, 39.9042],
+      'Shanghai': [121.4737, 31.2304],
+      'Guangzhou': [113.2806, 23.1251],
+      // ... 添加更多城市坐标
+    };
+    return cityCoords[cityName] || [0, 0];
+  };
 
   // 添加绘制地图的函数
   const drawMap = () => {
@@ -40,56 +157,109 @@ const WorldMap = () => {
     d3.json(
       "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
     ).then(function (data: any) {
-      // 为每个国家创建一个组
-      const countries = svg
-        .selectAll("g")
+      // 创建不同的图层组
+      const mapLayer = svg.append("g").attr("class", "map-layer");
+      const labelLayer = svg.append("g").attr("class", "label-layer");
+      const avatarLayer = svg.append("g").attr("class", "avatar-layer");
+
+      // 在底层绘制国家
+      const countries = mapLayer
+        .selectAll("path")
         .data(data.features)
         .enter()
-        .append("g");
-
-      // 绘制国家路径
-      countries
         .append("path")
         .attr("class", function (d: any) {
-          const highlightedCountries = ["China", "USA", "Australia", "Canada"];
-          return highlightedCountries.includes(d.properties.name)
+          return avatarInfos.some(info => info.countryName === d.properties.name)
             ? "country highlighted"
             : "country";
         })
         .attr("d", path as any)
         .on("mouseover", function (event: any, d: any) {
           // 显示对应的标签
-          d3.select(this.parentNode as any)
-            .select(".country-label")
+          labelLayer
+            .select(`.country-label-${d.properties.name.replace(/\s+/g, '-')}`)
             .style("opacity", 1);
         })
         .on("mouseout", function (event: any, d: any) {
           // 隐藏标签
-          d3.select(this.parentNode as any)
-            .select(".country-label")
+          labelLayer
+            .select(`.country-label-${d.properties.name.replace(/\s+/g, '-')}`)
             .style("opacity", 0);
         })
         .on("click", function (event: any, d: any) {
-          // 打印国家名称到控制台
           if (isExpanded === false) {
             setIsExpanded(true);
           }
           console.log(d);
           console.log(d.properties.name);
-
         });
 
-      // 添加国家名称标签
-      countries
-        .append("text")
-        .attr("class", "country-label")
-        .attr("transform", function (d: any) {
-          const centroid = path.centroid(d);
-          return "translate(" + centroid + ")";
-        })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text((d: any) => d.properties.name);
+      // 在中间层添加国家标签
+      data.features.forEach((d: any) => {
+        const centroid = path.centroid(d);
+        if (centroid.length) {
+          labelLayer
+            .append("text")
+            .attr("class", `country-label country-label-${d.properties.name.replace(/\s+/g, '-')}`)
+            .attr("transform", `translate(${centroid})`)
+            .attr("dy", ".35em")
+            .style("text-anchor", "middle")
+            .text(d.properties.name);
+        }
+      });
+
+      // 在顶层添加头像
+      data.features.forEach((feature: any) => {
+        const countryAvatars = avatarInfos.filter(
+          info => info.countryName === feature.properties.name
+        );
+
+        countryAvatars.forEach((avatarInfo, index) => {
+          const position = getAvatarPosition(avatarInfo.position, feature, path, projection);
+          if (!position) return;
+
+          // 计算偏移以避免重叠
+          const offset = avatarInfo.position.type === 'center' 
+            ? [-30 + (index * 35), -30] // 中心点时水平排列
+            : [0, 0]; // 其他位置不偏移
+
+          const avatar = avatarLayer
+            .append("g")
+            .attr("class", "avatar-container")
+            .attr("transform", `translate(${position[0] + offset[0]}, ${position[1] + offset[1]})`);
+
+          avatar
+            .append("circle")
+            .attr("r", 15)
+            .attr("class", "avatar-circle")
+            .style("cursor", "pointer");
+
+          avatar
+            .append("image")
+            .attr("x", -12)
+            .attr("y", -12)
+            .attr("width", 24)
+            .attr("height", 24)
+            .attr("xlink:href", avatarInfo.avatar)
+            .style("cursor", "pointer")
+            .on("click", async function(event: any) {
+              event.stopPropagation();
+              console.log(`Clicked avatar: ${avatarInfo.id}`);
+
+              if (!isExpanded) {
+                setIsExpanded(true);
+              }
+
+              await sendMessage(avatarInfo.presetInfo || `Tell me about ${avatarInfo.countryName}`);
+              addMessage({
+                content: avatarInfo.navigationInfo || `Would you like to know more about ${avatarInfo.countryName}?`,
+                isUser: false,
+                timestamp: new Date(),
+                isComplete: true
+              });
+            });
+        });
+      });
     });
   };
 
@@ -135,6 +305,21 @@ const WorldMap = () => {
         .country:hover + .country-label {
           opacity: 1;
         }
+        .avatar-circle {
+          fill: white;
+          stroke: #2196f3;
+          stroke-width: 2px;
+        }
+
+        .avatar-container {
+          pointer-events: all;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        // .avatar-container:hover {
+        //   transform: scale(1.1);
+        //   transition: transform 0.2s ease;
+        // }
       `}</style>
       <div className="fixed inset-0 flex items-center justify-center" ref={mapRef}></div>
     </>

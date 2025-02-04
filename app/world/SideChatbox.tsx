@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { IconButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -15,10 +15,17 @@ interface Message {
 }
 
 const SideChatbox: React.FC = () => {
-
-  const { isExpanded, setIsExpanded } = useAppStore();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const { 
+    isExpanded, 
+    messages, 
+    inputMessage,
+    setIsExpanded,
+    addMessage,
+    updateLastMessage,
+    setMessageComplete,
+    setInputMessage,
+    sendMessage
+  } = useAppStore();
 
   const toggleChatbox = () => {
     setIsExpanded(!isExpanded);
@@ -27,41 +34,8 @@ const SideChatbox: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim()) {
-      const userMessage: Message = {
-        content: inputMessage,
-        isUser: true,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, userMessage]);
-      
-      const aiMessage: Message = {
-        content: '',
-        isUser: false,
-        timestamp: new Date(),
-        isComplete: false
-      };
-      setMessages(prev => [...prev, aiMessage]);
-      
       setInputMessage('');
-
-      try {
-        for await (const chunk of chatBot(inputMessage)) {
-          setMessages(prev => {
-            const newMessages = [...prev];
-            const lastMessage = newMessages[newMessages.length - 1];
-            lastMessage.content += chunk;
-            return newMessages;
-          });
-        }
-        setMessages(prev => {
-          const newMessages = [...prev];
-          const lastMessage = newMessages[newMessages.length - 1];
-          lastMessage.isComplete = true;
-          return newMessages;
-        });
-      } catch (error) {
-        console.error('Error processing AI response:', error);
-      }
+      await sendMessage(inputMessage);
     }
   };
 

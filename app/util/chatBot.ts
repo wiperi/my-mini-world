@@ -13,7 +13,7 @@ type StreamChunk = {
   }>;
 };
 
-let conversationHistory: ConversationEntry[] = [];
+export let conversationHistory: ConversationEntry[] = [];
 
 export async function* chatBot(userInput: string): AsyncGenerator<string> {
   let out = "";

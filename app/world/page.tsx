@@ -1,5 +1,6 @@
 'use client';
 
+import myInfo from '../presetInfo';
 import SideChatbox from './SideChatbox';
 import WorldMap from './WorldMap';
 
