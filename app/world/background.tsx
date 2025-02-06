@@ -21,7 +21,7 @@ const Background = ({ children }: BackgroundProps) => {
         x: e.clientX,
         y: e.clientY,
         timestamp: Date.now(),
-        id: crypto.randomUUID()
+        id: Math.random().toString(36).substring(2) + Date.now().toString(36)
       };
       
       setMousePoints(prevPoints => {

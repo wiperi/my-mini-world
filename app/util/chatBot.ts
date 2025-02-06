@@ -1,7 +1,7 @@
-// import readline from "readline";
+import { HfInference } from "@huggingface/inference"
 
 type ConversationEntry = {
-  role:  "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
 };
 
@@ -21,39 +21,43 @@ export async function* chatBot(userInput: string): AsyncGenerator<string> {
   // Add the user's input to the conversation history
   conversationHistory.push({ role: "user", content: userInput });
 
-  // Mocking the API response with a stream-like behavior
-  const mockStreamResponse = async function* (): AsyncGenerator<StreamChunk> {
-    const mockResponses = [
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-      "AI的回复.",
-    ];
-    for (const response of mockResponses) {
-      await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate delay
-      yield { choices: [{ delta: { content: response } }] };
-    }
-  };
+  try {
+    // Create fetch request to our backend API
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: userInput }),
+    });
 
-  const stream = mockStreamResponse();
-
-  for await (const chunk of stream) {
-    if (chunk.choices && chunk.choices.length > 0) {
-      const newContent = chunk.choices[0].delta.content;
-      out += newContent;
-      yield newContent;
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+
+    // Get the response as a readable stream
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (!reader) {
+      throw new Error('Failed to get stream reader');
+    }
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const chunk = decoder.decode(value);
+      out += chunk;
+      yield chunk;
+    }
+
+    // Add the assistant's response to the conversation history
+    conversationHistory.push({ role: "assistant", content: out });
+  } catch (error) {
+    console.error("Error in chatBot:", error);
+    yield "Sorry, I encountered an error while processing your request.";
   }
-
-  // Add the assistant's response to the conversation history
-  conversationHistory.push({ role: "assistant", content: out });
 }
 
 // if (require.main === module) {
