@@ -65,7 +65,7 @@ const Background = ({ children }: BackgroundProps) => {
               x: ['-440vh', '0%']
             }}
             transition={{
-              duration: 30,
+              duration: 23,
               delay: index * 5,
               repeat: Infinity,
               ease: "linear"

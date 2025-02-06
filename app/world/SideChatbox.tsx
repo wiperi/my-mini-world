@@ -46,7 +46,7 @@ const SideChatbox: React.FC = () => {
       {/* Header */}
       <div className={`flex-shrink-0 flex items-center bg-[#87ceeb] ${isExpanded ? 'justify-between' : 'justify-center'} p-4`}>
         {isExpanded && (
-          <h2 className="text-lg font-semibold text-white">AI 助手</h2>
+          <h2 className="text-lg font-semibold text-white">AI Assistant</h2>
         )}
         <IconButton
           onClick={toggleChatbox}
@@ -101,7 +101,7 @@ const SideChatbox: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-[#87ceeb] text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  发送
+                  Send
                 </button>
               </div>
             </form>

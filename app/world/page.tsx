@@ -16,7 +16,8 @@ export default function WorldPage() {
     setIsExpanded(true);
 
     addMessageStream(
-      `Hey there!👋 Welcome to my digital universe - Tian's Mini World! Here, you can discover the connections I've made across the globe through my experiences (despite not so many 😓). Feel free to click around and explore, or just ask me anything, whether it's about my hobby 🏃 or my journey as a developer 💻. `
+      `Hey there!👋 Welcome to my digital universe - Tian's Mini World! Here, you can discover the connections I've made across the globe through my experiences (despite not so many 😓). Feel free to click around and explore, or just ask me anything, whether it's about my hobby 🏃 or my journey as a developer 💻.
+      [ps: Did some prompt engineering based on Qwen-2.5-72B. Model might occasionally overload. Please check availability when encouting an error.]`
     );
   }, []);
 

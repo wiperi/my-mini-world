@@ -46,62 +46,19 @@ const WorldMap = () => {
       countryName: "China",
       avatar: cottageImage.src,
       position: { type: "coordinate", coordinates: [114.34, 30.57] },
-      userMessage: "Tell me: info about zhengzhou",
-      pseudoMessage: "Tell me your connection about zhengzhou.",
+      userMessage: "Tell me: tian's connection about Zhengzhou",
+      pseudoMessage: "Tell me your connection about Zhengzhou.",
       promptingMessage: "Exploring Zhengzhou traditions",
     },
-    // {
-    //   id: 'china-2',
-    //   countryName: 'China',
-    //   avatar: '/avatars/china-user2.png',
-    //   position: {
-    //     type: 'city',
-    //     cityName: 'Beijing'
-    //   },
-    //   userMessage: 'Tell me about Beijing',
-    //   promptingMessage: 'Exploring Beijing landmarks'
-    // },
-    // {
-    //   id: 'china-3',
-    //   countryName: 'China',
-    //   avatar: '/avatars/china-user3.png',
-    //   position: {
-    //     type: 'center',
-    //   },
-    //   userMessage: 'Tell me about Beijing',
-    //   promptingMessage: 'Exploring Beijing landmarks'
-    // },
-    // {
-    //   id: 'china-4',
-    //   countryName: 'China',
-    //   avatar: '/avatars/china-user4.png',
-    //   position: {
-    //     type: 'city',
-    //     cityName: 'Guangzhou'
-    //   },
-    //   userMessage: 'Tell me about Guangzhou',
-    //   promptingMessage: 'Exploring Guangzhou landmarks'
-
-    // },
     {
       id: "usa-1",
       countryName: "USA",
       avatar: musicNoteImage.src,
       position: { type: "center" },
+      userMessage: "Tell me: tian's connection about USA",
       pseudoMessage: "Tell me your connection about USA.",
-      userMessage: "Tell me: info about USA",
       promptingMessage: "Exploring USA culture",
     },
-    // {
-    //   id: 'usa-2',
-    //   countryName: 'USA',
-    //   avatar: '/avatars/usa-user2.png',
-    //   position: {
-    //     type: 'coordinate',
-    //     coordinates: [-122.4194, 37.7749] // San Francisco coordinates
-    //   },
-    //   userMessage: 'Tell me about San Francisco'
-    // },
     {
       id: "sydney-1",
       countryName: "Australia",
@@ -110,8 +67,8 @@ const WorldMap = () => {
         type: "city",
         cityName: "Sydney",
       },
-      userMessage: "Tell me: info about sydney",
-      pseudoMessage: "Tell me your connection about sydney.",
+      userMessage: "Tell me: tian's connection about Sydney",
+      pseudoMessage: "Tell me your connection about Sydney.",
       promptingMessage: "Exploring sydney landmarks and culture",
     },
     {
@@ -121,7 +78,7 @@ const WorldMap = () => {
       position: {
         type: "center",
       },
-      userMessage: "Tell me: info about Canada",
+      userMessage: "Tell me: tian's connection about Canada",
       pseudoMessage: "Tell me your connection about Canada.",
       promptingMessage: "Exploring Canada culture and landmarks",
     },
@@ -321,12 +278,12 @@ const WorldMap = () => {
                 avatarInfo.userMessage,
                 avatarInfo.pseudoMessage
               );
-              addMessage({
-                content: avatarInfo.promptingMessage,
-                isUser: false,
-                timestamp: new Date(),
-                isComplete: true,
-              });
+              // addMessage({
+              //   content: avatarInfo.promptingMessage,
+              //   isUser: false,
+              //   timestamp: new Date(),
+              //   isComplete: true,
+              // });
             });
         });
       });

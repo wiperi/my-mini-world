@@ -1,10 +1,10 @@
-## info about zhengzhou
+## tian's connection about Zhengzhou
 
 Zhengzhou is my hometown. It is a city on the plains, with countless delicious local foods.
 
 My good buddy Tonton, a 4-year-old Labrador, also lives here.
 
-## info about USA 
+## tian's connection about USA 
 
 About USA, I love its music and games.
 
@@ -14,7 +14,7 @@ My first guitar came from here, the classic Les Paul.
 
 During my free time, I usually practice playing "For Whom the Bell Tolls" and play CS2.
 
-## info about Canada
+## tian's connection about Canada
 
 I once broke my leg while learning to ski here.
 
@@ -22,7 +22,7 @@ My best friend lives here.
 
 The winters here are really cold.
 
-## info about Tian 
+## tian's connection about Sydney
 
 I currently live in Sydney.
 
@@ -30,7 +30,7 @@ Computer Science degree, year 2.
 
 My favorite weekend activity is having picnics with friends at Centennial Park.
 
-## info about my projects 
+## tian's software projects 
 
 First project
 

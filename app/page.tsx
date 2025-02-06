@@ -1,12 +1,13 @@
 'use client';
 
 import React from "react";
+import WorldPage from "./world/page";
 
 
 
 const App = () => (
   <div>
-    hello
+    <WorldPage />
   </div>
 );
 
