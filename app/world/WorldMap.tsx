@@ -2,35 +2,39 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { useAppStore } from "../store/appStore";
 import { conversationHistory } from "../util/chatBot";
+import Battery50Icon from "@mui/icons-material/Battery50";
+import { boyImage, cottageImage, downhillSkiingImage, musicNoteImage } from '../assets';
+
+let defaultAvatar = cottageImage.src;
 
 // 首先定义类型
 type AvatarPosition = {
-  type: 'center' | 'city' | 'coordinate';
+  type: "center" | "city" | "coordinate";
   coordinates?: [number, number]; // 经纬度坐标
   cityName?: string;
-}
+};
 
 type AvatarInfo = {
   id: string;
   countryName: string;
-  avatar: string;
+  avatar?: string;  // 将 avatar 设为可选
   position: AvatarPosition;
-  presetInfo?: string;
-  navigationInfo?: string;
-}
+  userMessage: string;
+  pseudoMessage: string;
+  promptingMessage: string;
+};
 
 const WorldMap = () => {
-
-  const { 
-    isExpanded, 
-    messages, 
+  const {
+    isExpanded,
+    messages,
     inputMessage,
     setIsExpanded,
     addMessage,
     updateLastMessage,
     setMessageComplete,
     setInputMessage,
-    sendMessage
+    sendMessage,
   } = useAppStore();
 
   const mapRef = useRef<HTMLDivElement>(null);
@@ -38,76 +42,109 @@ const WorldMap = () => {
   // 替换原来的 highlightedCountries 为新的 avatarInfos
   const avatarInfos: AvatarInfo[] = [
     {
-      id: 'china-1',
-      countryName: 'China',
-      avatar: '/avatars/china-user1.png',
-      position: { type: 'center' },
-      presetInfo: 'Tell me about Chinese culture',
-      navigationInfo: 'Exploring Chinese traditions'
+      id: "zhengzhou-1",
+      countryName: "China",
+      avatar: cottageImage.src,
+      position: { type: "coordinate", coordinates: [114.34, 30.57] },
+      userMessage: "Tell me: info about zhengzhou",
+      pseudoMessage: "Tell me your connection about zhengzhou.",
+      promptingMessage: "Exploring Zhengzhou traditions",
     },
+    // {
+    //   id: 'china-2',
+    //   countryName: 'China',
+    //   avatar: '/avatars/china-user2.png',
+    //   position: {
+    //     type: 'city',
+    //     cityName: 'Beijing'
+    //   },
+    //   userMessage: 'Tell me about Beijing',
+    //   promptingMessage: 'Exploring Beijing landmarks'
+    // },
+    // {
+    //   id: 'china-3',
+    //   countryName: 'China',
+    //   avatar: '/avatars/china-user3.png',
+    //   position: {
+    //     type: 'center',
+    //   },
+    //   userMessage: 'Tell me about Beijing',
+    //   promptingMessage: 'Exploring Beijing landmarks'
+    // },
+    // {
+    //   id: 'china-4',
+    //   countryName: 'China',
+    //   avatar: '/avatars/china-user4.png',
+    //   position: {
+    //     type: 'city',
+    //     cityName: 'Guangzhou'
+    //   },
+    //   userMessage: 'Tell me about Guangzhou',
+    //   promptingMessage: 'Exploring Guangzhou landmarks'
+
+    // },
     {
-      id: 'china-2',
-      countryName: 'China',
-      avatar: '/avatars/china-user2.png',
-      position: { 
-        type: 'city',
-        cityName: 'Beijing'
+      id: "usa-1",
+      countryName: "USA",
+      avatar: musicNoteImage.src,
+      position: { type: "center" },
+      pseudoMessage: "Tell me your connection about USA.",
+      userMessage: "Tell me: info about USA",
+      promptingMessage: "Exploring USA culture",
+    },
+    // {
+    //   id: 'usa-2',
+    //   countryName: 'USA',
+    //   avatar: '/avatars/usa-user2.png',
+    //   position: {
+    //     type: 'coordinate',
+    //     coordinates: [-122.4194, 37.7749] // San Francisco coordinates
+    //   },
+    //   userMessage: 'Tell me about San Francisco'
+    // },
+    {
+      id: "sydney-1",
+      countryName: "Australia",
+      avatar: boyImage.src,
+      position: {
+        type: "city",
+        cityName: "Sydney",
       },
-      presetInfo: 'Tell me about Beijing',
-      navigationInfo: 'Exploring Beijing landmarks'
+      userMessage: "Tell me: info about sydney",
+      pseudoMessage: "Tell me your connection about sydney.",
+      promptingMessage: "Exploring sydney landmarks and culture",
     },
     {
-      id: 'china-3',
-      countryName: 'China',
-      avatar: '/avatars/china-user3.png',
-      position: { 
-        type: 'center',
+      id: "canada-1",
+      countryName: "Canada",
+      avatar: downhillSkiingImage.src,
+      position: {
+        type: "center",
       },
-      presetInfo: 'Tell me about Beijing',
-      navigationInfo: 'Exploring Beijing landmarks'
+      userMessage: "Tell me: info about Canada",
+      pseudoMessage: "Tell me your connection about Canada.",
+      promptingMessage: "Exploring Canada culture and landmarks",
     },
-    {
-      id: 'china-4',
-      countryName: 'China',
-      avatar: '/avatars/china-user4.png',
-      position: { 
-        type: 'coordinate',
-        coordinates: [113.2806, 23.1251]
-      },
-      presetInfo: 'Tell me about Guangzhou',
-      navigationInfo: 'Exploring Guangzhou landmarks'
-    },
-    {
-      id: 'usa-1',
-      countryName: 'USA',
-      avatar: '/avatars/usa-user1.png',
-      position: { type: 'center' },
-      presetInfo: 'Tell me about American culture'
-    },
-    {
-      id: 'usa-2',
-      countryName: 'USA',
-      avatar: '/avatars/usa-user2.png',
-      position: { 
-        type: 'coordinate',
-        coordinates: [-122.4194, 37.7749] // San Francisco coordinates
-      },
-      presetInfo: 'Tell me about San Francisco'
-    }
+
     // ... 可以添加更多头像信息
   ];
 
   // 添加获取头像位置的辅助函数
-  const getAvatarPosition = (position: AvatarPosition, feature: any, path: any, projection: any): [number, number] => {
+  const getAvatarPosition = (
+    position: AvatarPosition,
+    feature: any,
+    path: any,
+    projection: any
+  ): [number, number] => {
     switch (position.type) {
-      case 'center':
+      case "center":
         return path.centroid(feature);
-      case 'city':
+      case "city":
         // 这里需要一个城市坐标数据库，这里简化处理
         // 实际应用中你需要一个城市坐标的查找表
         const cityCoordinates = getCityCoordinates(position.cityName!);
         return projection(cityCoordinates);
-      case 'coordinate':
+      case "coordinate":
         return projection(position.coordinates!);
       default:
         return path.centroid(feature);
@@ -117,9 +154,10 @@ const WorldMap = () => {
   // 城市坐标查找函数（示例）
   const getCityCoordinates = (cityName: string): [number, number] => {
     const cityCoords: Record<string, [number, number]> = {
-      'Beijing': [116.4074, 39.9042],
-      'Shanghai': [121.4737, 31.2304],
-      'Guangzhou': [113.2806, 23.1251],
+      Beijing: [116.4074, 39.9042],
+      Shanghai: [121.4737, 31.2304],
+      Guangzhou: [113.2806, 23.1251],
+      Sydney: [151.2093, -33.8688], // 添加悉尼的坐标
       // ... 添加更多城市坐标
     };
     return cityCoords[cityName] || [0, 0];
@@ -141,6 +179,13 @@ const WorldMap = () => {
       .append("svg")
       .attr("width", width)
       .attr("height", height);
+
+    // 添加 clipPath 定义
+    svg.append("defs")
+      .append("clipPath")
+      .attr("id", "avatar-clip")
+      .append("circle")
+      .attr("r", 15);
 
     // Define a projection method for the map using the Natural Earth projection
     // Scale the projection based on the smaller dimension of the window
@@ -169,7 +214,9 @@ const WorldMap = () => {
         .enter()
         .append("path")
         .attr("class", function (d: any) {
-          return avatarInfos.some(info => info.countryName === d.properties.name)
+          return avatarInfos.some(
+            (info) => info.countryName === d.properties.name
+          )
             ? "country highlighted"
             : "country";
         })
@@ -177,19 +224,17 @@ const WorldMap = () => {
         .on("mouseover", function (event: any, d: any) {
           // 显示对应的标签
           labelLayer
-            .select(`.country-label-${d.properties.name.replace(/\s+/g, '-')}`)
+            .select(`.country-label-${d.properties.name.replace(/\s+/g, "-")}`)
             .style("opacity", 1);
         })
         .on("mouseout", function (event: any, d: any) {
           // 隐藏标签
           labelLayer
-            .select(`.country-label-${d.properties.name.replace(/\s+/g, '-')}`)
+            .select(`.country-label-${d.properties.name.replace(/\s+/g, "-")}`)
             .style("opacity", 0);
         })
         .on("click", function (event: any, d: any) {
-          if (isExpanded === false) {
-            setIsExpanded(true);
-          }
+
           console.log(d);
           console.log(d.properties.name);
         });
@@ -200,7 +245,13 @@ const WorldMap = () => {
         if (centroid.length) {
           labelLayer
             .append("text")
-            .attr("class", `country-label country-label-${d.properties.name.replace(/\s+/g, '-')}`)
+            .attr(
+              "class",
+              `country-label country-label-${d.properties.name.replace(
+                /\s+/g,
+                "-"
+              )}`
+            )
             .attr("transform", `translate(${centroid})`)
             .attr("dy", ".35em")
             .style("text-anchor", "middle")
@@ -211,38 +262,54 @@ const WorldMap = () => {
       // 在顶层添加头像
       data.features.forEach((feature: any) => {
         const countryAvatars = avatarInfos.filter(
-          info => info.countryName === feature.properties.name
+          (info) => info.countryName === feature.properties.name
         );
 
         countryAvatars.forEach((avatarInfo, index) => {
-          const position = getAvatarPosition(avatarInfo.position, feature, path, projection);
+          const position = getAvatarPosition(
+            avatarInfo.position,
+            feature,
+            path,
+            projection
+          );
           if (!position) return;
 
           // 计算偏移以避免重叠
-          const offset = avatarInfo.position.type === 'center' 
-            ? [-30 + (index * 35), -30] // 中心点时水平排列
-            : [0, 0]; // 其他位置不偏移
+          const offset =
+            avatarInfo.position.type === "center"
+              ? [-30 + index * 35, -30] // 中心点时水平排列
+              : [0, 0]; // 其他位置不偏移
 
           const avatar = avatarLayer
             .append("g")
             .attr("class", "avatar-container")
-            .attr("transform", `translate(${position[0] + offset[0]}, ${position[1] + offset[1]})`);
+            .attr(
+              "transform",
+              `translate(${position[0] + offset[0]}, ${
+                position[1] + offset[1]
+              })`
+            );
 
+          // 背景圆圈
           avatar
             .append("circle")
-            .attr("r", 15)
+            .attr("r", 17)
             .attr("class", "avatar-circle")
-            .style("cursor", "pointer");
-
-          avatar
-            .append("image")
-            .attr("x", -12)
-            .attr("y", -12)
-            .attr("width", 24)
-            .attr("height", 24)
-            .attr("xlink:href", avatarInfo.avatar)
             .style("cursor", "pointer")
-            .on("click", async function(event: any) {
+            .style("fill", '#374151'); // deep gray
+
+          // 图片容器，添加 clip-path
+          avatar
+            .append("g")
+            .attr("clip-path", "url(#avatar-clip)")  // 添加裁剪
+            .append("image")
+            .attr("x", -15)
+            .attr("y", -15)
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("xlink:href", avatarInfo.avatar || defaultAvatar)
+            .style("cursor", "pointer")
+            .on("click", async function (event: any) {
               event.stopPropagation();
               console.log(`Clicked avatar: ${avatarInfo.id}`);
 
@@ -250,12 +317,15 @@ const WorldMap = () => {
                 setIsExpanded(true);
               }
 
-              await sendMessage(avatarInfo.presetInfo || `Tell me about ${avatarInfo.countryName}`);
+              await sendMessage(
+                avatarInfo.userMessage,
+                avatarInfo.pseudoMessage
+              );
               addMessage({
-                content: avatarInfo.navigationInfo || `Would you like to know more about ${avatarInfo.countryName}?`,
+                content: avatarInfo.promptingMessage,
                 isUser: false,
                 timestamp: new Date(),
-                isComplete: true
+                isComplete: true,
               });
             });
         });
@@ -272,11 +342,11 @@ const WorldMap = () => {
       drawMap();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // 清理函数
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -284,20 +354,20 @@ const WorldMap = () => {
     <>
       <style jsx global>{`
         .country {
-          fill: #d0d0d0;
+          fill: #252931;
           stroke: #ffffff;
           stroke-width: 0.5px;
         }
         .country.highlighted {
-          fill: #add8e6; /* 浅蓝色 */
+          fill: #253b57;
         }
         .country:hover {
-          fill: #f53;
+          fill: #87CEEB;
         }
         .country-label {
           font-family: Arial, sans-serif;
           font-size: 12px;
-          fill: #333;
+          fill: #ffffff;
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.2s;
@@ -313,7 +383,7 @@ const WorldMap = () => {
 
         .avatar-container {
           pointer-events: all;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         // .avatar-container:hover {
@@ -321,7 +391,10 @@ const WorldMap = () => {
         //   transition: transform 0.2s ease;
         // }
       `}</style>
-      <div className="fixed inset-0 flex items-center justify-center" ref={mapRef}></div>
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        ref={mapRef}
+      ></div>
     </>
   );
 };

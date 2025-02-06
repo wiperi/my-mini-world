@@ -40,11 +40,11 @@ const SideChatbox: React.FC = () => {
   };
 
   return (
-    <div className={`fixed right-0 top-0 h-screen bg-slate-800 shadow-lg transition-all duration-300 flex flex-col ${
+    <div className={`fixed right-0 top-0 h-screen bg-[#252931] shadow-lg transition-all duration-300 flex flex-col ${
       isExpanded ? 'w-96' : 'w-12'
     }`}>
       {/* Header */}
-      <div className={`flex-shrink-0 flex items-center ${isExpanded ? 'bg-blue-600' : 'bg-white'} ${isExpanded ? 'justify-between' : 'justify-center'} p-4`}>
+      <div className={`flex-shrink-0 flex items-center bg-[#87ceeb] ${isExpanded ? 'justify-between' : 'justify-center'} p-4`}>
         {isExpanded && (
           <h2 className="text-lg font-semibold text-white">AI 助手</h2>
         )}
@@ -71,10 +71,11 @@ const SideChatbox: React.FC = () => {
                   <div
                     className={`max-w-[80%] p-3 rounded-lg ${
                       message.isUser
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-slate-500 text-white'
                         : 'bg-gray-100 text-gray-800'
                     }`}
                   >
+
                     {message.content}
                     {!message.isUser && !message.isComplete && (
                       <span className="inline-block ml-2 animate-pulse">▋</span>
@@ -98,7 +99,7 @@ const SideChatbox: React.FC = () => {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-[#87ceeb] text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   发送
                 </button>

@@ -15,10 +15,11 @@ interface AppState {
   setIsExpanded: (isExpanded: boolean) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
+  addMessageStream: (fullMessage: string) => void;
   updateLastMessage: (content: string) => void;
   setMessageComplete: () => void;
   setInputMessage: (message: string) => void;
-  sendMessage: (message: string) => Promise<void>;
+  sendMessage: (message: string, pseudoMessage?: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -32,6 +33,35 @@ export const useAppStore = create<AppState>((set) => ({
   
   addMessage: (message: Message) => 
     set((state) => ({ messages: [...state.messages, message] })),
+
+  addMessageStream: (fullMessage: string) => {
+    const { addMessage, updateLastMessage, setMessageComplete } = useAppStore.getState();
+    
+    // Add initial empty message
+    addMessage({
+      content: '',
+      isUser: false,
+      timestamp: new Date(),
+      isComplete: false
+    });
+
+    // Split message into words
+    const words = fullMessage.split(' ');
+    let currentWordIndex = 0;
+
+    // Stream words with setInterval
+    const interval = setInterval(() => {
+      if (currentWordIndex < words.length) {
+        // Add next word with space
+        updateLastMessage(words[currentWordIndex] + ' ');
+        currentWordIndex++;
+      } else {
+        // End streaming
+        clearInterval(interval);
+        setMessageComplete();
+      }
+    }, 40); // Update every 100ms
+  },
   
   updateLastMessage: (content: string) =>
     set((state) => {
@@ -55,13 +85,13 @@ export const useAppStore = create<AppState>((set) => ({
   
   setInputMessage: (message: string) => set({ inputMessage: message }),
 
-  sendMessage: async (message: string) => {
+  sendMessage: async (message: string, pseudoMessage?: string) => {
     const { addMessage, updateLastMessage, setMessageComplete } = useAppStore.getState();
     
     if (message.trim()) {
       // Add user message
       addMessage({
-        content: message,
+        content: pseudoMessage || message,
         isUser: true,
         timestamp: new Date(),
       });
