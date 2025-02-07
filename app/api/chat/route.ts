@@ -1,9 +1,9 @@
-import { HfInference } from '@huggingface/inference';
-import { NextResponse } from 'next/server';
+import { HfInference } from "@huggingface/inference";
+import { NextResponse } from "next/server";
 
 // Check if the HUGGINGFACE_API_KEY is set in environment variables
 if (!process.env.HUGGINGFACE_API_KEY) {
-  throw new Error('HUGGINGFACE_API_KEY is not set in environment variables');
+  throw new Error("HUGGINGFACE_API_KEY is not set in environment variables");
 }
 
 const client = new HfInference(process.env.HUGGINGFACE_API_KEY);
@@ -16,7 +16,8 @@ export async function POST(request: Request) {
   let finalMessage = [
     {
       role: "system",
-      content: "You are a person named Tian. Your are introducing yourself to a new friend. Never ask a question in the end of response."
+      content:
+        "You are a person named Tian. Your are introducing yourself to a new friend. Never ask a question in the end of response.",
     },
     {
       role: "system",
@@ -64,13 +65,13 @@ Built with Express and TypeScript on the backend and React/Redux on the frontend
 Second project
 
 NovusCRM (https://github.com/wiperi/NovusCRM) is a web-based CRM system. It is still in developing. As the backend developer, I built it using Java and Spring Boot with MySQL database.
-`
+`,
     },
     {
-    role: "user",
-    content: message
-  },
-];
+      role: "user",
+      content: message,
+    },
+  ];
 
   // Set up streaming response
   const stream = new TransformStream();
@@ -85,18 +86,18 @@ NovusCRM (https://github.com/wiperi/NovusCRM) is a web-based CRM system. It is s
         messages: finalMessage,
         temperature: 0.5,
         max_tokens: 500,
-        top_p: 0.7
+        top_p: 0.7,
       });
 
       for await (const chunk of response) {
         if (chunk.choices && chunk.choices.length > 0) {
           const newContent = chunk.choices[0].delta.content;
           await writer.write(encoder.encode(newContent));
-        } 
+        }
       }
     } catch (error) {
-      console.error('Error in chat API:', error);
-      await writer.write(encoder.encode('Sorry, an error occurred.'));
+      console.error("Error in chat API:", error);
+      await writer.write(encoder.encode("Sorry, an error occurred."));
     } finally {
       await writer.close();
     }
@@ -105,8 +106,8 @@ NovusCRM (https://github.com/wiperi/NovusCRM) is a web-based CRM system. It is s
   // Return the readable stream
   return new NextResponse(stream.readable, {
     headers: {
-      'Content-Type': 'text/plain',
-      'Transfer-Encoding': 'chunked',
+      "Content-Type": "text/plain",
+      "Transfer-Encoding": "chunked",
     },
   });
-} 
+}

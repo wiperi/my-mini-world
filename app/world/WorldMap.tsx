@@ -3,7 +3,12 @@ import * as d3 from "d3";
 import { useAppStore } from "../store/appStore";
 import { conversationHistory } from "../util/chatBot";
 import Battery50Icon from "@mui/icons-material/Battery50";
-import { boyImage, cottageImage, downhillSkiingImage, musicNoteImage } from '../assets';
+import {
+  boyImage,
+  cottageImage,
+  downhillSkiingImage,
+  musicNoteImage,
+} from "../assets";
 
 let defaultAvatar = cottageImage.src;
 
@@ -17,7 +22,7 @@ type AvatarPosition = {
 type AvatarInfo = {
   id: string;
   countryName: string;
-  avatar?: string;  // 将 avatar 设为可选
+  avatar?: string; // 将 avatar 设为可选
   position: AvatarPosition;
   userMessage: string;
   pseudoMessage: string;
@@ -55,7 +60,20 @@ const WorldMap = () => {
       countryName: "USA",
       avatar: musicNoteImage.src,
       position: { type: "center" },
-      userMessage: "Tell me: tian's connection about USA",
+      userMessage: `## This is somoething your should know. 
+      
+      tian's connection about USA 
+
+      About USA, I love its music and games.
+      
+      My favorite band Metallica is from here, and I once went to their concert in LA.
+      
+      My first guitar came from here, the classic Les Paul.
+      
+      During my free time, I usually practice playing "For Whom the Bell Tolls" and play CS2.
+      .
+      
+      Now, rephase and tell me: tian's connection about USA`,
       pseudoMessage: "Tell me your connection about USA.",
       promptingMessage: "Exploring USA culture",
     },
@@ -138,7 +156,8 @@ const WorldMap = () => {
       .attr("height", height);
 
     // 添加 clipPath 定义
-    svg.append("defs")
+    svg
+      .append("defs")
       .append("clipPath")
       .attr("id", "avatar-clip")
       .append("circle")
@@ -191,7 +210,6 @@ const WorldMap = () => {
             .style("opacity", 0);
         })
         .on("click", function (event: any, d: any) {
-
           console.log(d);
           console.log(d.properties.name);
         });
@@ -253,12 +271,12 @@ const WorldMap = () => {
             .attr("r", 17)
             .attr("class", "avatar-circle")
             .style("cursor", "pointer")
-            .style("fill", '#374151'); // deep gray
+            .style("fill", "#374151"); // deep gray
 
           // 图片容器，添加 clip-path
           avatar
             .append("g")
-            .attr("clip-path", "url(#avatar-clip)")  // 添加裁剪
+            .attr("clip-path", "url(#avatar-clip)") // 添加裁剪
             .append("image")
             .attr("x", -15)
             .attr("y", -15)
@@ -319,7 +337,7 @@ const WorldMap = () => {
           fill: #253b57;
         }
         .country:hover {
-          fill: #87CEEB;
+          fill: #87ceeb;
         }
         .country-label {
           font-family: Arial, sans-serif;

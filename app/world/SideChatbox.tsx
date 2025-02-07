@@ -95,7 +95,7 @@ const SideChatbox: React.FC = () => {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-700 text-white"
-                  placeholder="输入消息..."
+                  placeholder="Input your message..."
                 />
                 <button
                   type="submit"
